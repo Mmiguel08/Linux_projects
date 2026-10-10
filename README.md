@@ -34,7 +34,7 @@ Add your project screenshots here.
 ```{=html}
 <!-- Add screenshot here -->
 ```
-![Running the health check](screenshots/health-check-run.png)
+![Running the health check](health-check-run.png)
 
 ### 2. Health report output
 
