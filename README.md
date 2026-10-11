@@ -1,103 +1,101 @@
-# Linux System Health Check
+# 🩺 Linux System Health Check
 
-A Bash script to check Linux system resources and network connectivity,
-then save the results to a report.
+Script em Bash que faz uma verificação diária do estado de um sistema Linux, incluindo diagnóstico de rede. O resultado é mostrado no terminal e guardado num ficheiro de relatório.
 
-## Features
+## 📋 O que verifica
 
--   Disk usage --- `df -h`
--   Memory usage --- `free -h`
--   CPU load --- `uptime`
--   Failed systemd services --- `systemctl --failed --no-legend`
--   Top CPU processes ---
-    `ps -eo user,pid,%cpu,%mem,command --sort=-%cpu | head -6`
--   Top memory processes ---
-    `ps -eo user,pid,%cpu,%mem,command --sort=-%mem | head -6`
--   System uptime --- `uptime -p`
--   Recent error logs --- `journalctl -b -p 3 --no-pager`
--   Network interfaces and IP addresses --- `ip a`
--   Routing table --- `ip route`
--   Listening ports --- `ss -tulnp`
--   Internet connectivity --- `ping -c 3 8.8.8.8`
--   DNS/connectivity test --- `ping -c 3 google.com`
--   Save the report --- `tee "$LOGFILE"`
+| Área | Comando usado | Descrição |
+|------|---------------|-----------|
+| Disco | `df -h` | Utilização das partições |
+| Memória | `free -h` | RAM e swap em uso |
+| Carga do CPU | `uptime` | Médias de carga a 1/5/15 minutos |
+| Serviços | `systemctl --failed` | Serviços systemd com falhas |
+| Processos (CPU) | `ps` | Top 5 processos que mais CPU consomem |
+| Processos (RAM) | `ps` | Top 5 processos que mais memória consomem |
+| Uptime | `uptime -p` | Há quanto tempo o sistema está ligado |
+| Logs de erro | `journalctl -b -p 3` | Últimos 10 erros (prioridade 3 ou superior) do boot atual |
+| Interfaces de rede | `ip a` | Interfaces e endereços IP |
+| Rotas | `ip route` | Tabela de encaminhamento |
+| Portas abertas | `ss -tulnp` | Portas TCP/UDP em escuta |
+| Conectividade | `ping` | Testa internet (`8.8.8.8`) e resolução DNS (`google.com`) |
 
-## Screenshots
+## ⚙️ Requisitos
 
-Add your project screenshots here.
+- Linux com **systemd** (`systemctl`, `journalctl`)
+- Bash
+- Pacotes habituais: `coreutils`, `procps`, `iproute2`, `iputils-ping`
+- Permissões de `root` (ou `sudo`) para ver todos os logs e os processos associados às portas em escuta
 
-```{=html}
-<!-- Replace the placeholders below with your image filenames or GitHub image URLs. -->
-```
-### 1. Running the script
+## 🚀 Utilização
 
-```{=html}
-<!-- Add screenshot here -->
-```
-![Running the health check](health-check-run.png)
+```bash
+# 1. Clonar o repositório
+git clone https://github.com/<o-teu-utilizador>/<nome-do-repo>.git
+cd <nome-do-repo>
 
-### 2. Health report output
+# 2. Dar permissões de execução
+chmod +x health-check.sh
 
-```{=html}
-<!-- Add screenshot here -->
-```
-![Health report output](screenshots/health-report.png)
-
-### 3. Network diagnostics
-
-```{=html}
-<!-- Add screenshot here -->
-```
-![Network diagnostics](screenshots/network-diagnostics.png)
-
-### 4. Cron schedule
-
-```{=html}
-<!-- Add screenshot here -->
-```
-![Cron schedule](screenshots/cron-schedule.png)
-
-## Run the script
-
-``` bash
-chmod +x ~/health-check.sh
-~/health-check.sh
+# 3. Executar
+bash health-check.sh
+# ou, para ver todos os logs e portas:
+sudo bash health-check.sh
 ```
 
-The report is saved to `~/health-report.txt`.
+O relatório é guardado em `~/health-report.txt` (podes alterar a variável `LOGFILE` no início do script).
 
-## Schedule it every day at 07:00
+## 🕒 Execução automática (cron)
 
-Start cron on Ubuntu/WSL:
+Para correr o script todos os dias às 08:00:
 
-``` bash
-sudo service cron start
-```
-
-Edit the user crontab:
-
-``` bash
+```bash
 crontab -e
 ```
 
-Add the following line, replacing the path with your actual home
-directory:
-
-``` cron
-0 7 * * * /home/YOUR_USERNAME/health-check.sh
+```cron
+0 8 * * * /bin/bash /caminho/para/health-check.sh
 ```
 
-Verify the scheduled job:
+## 📄 Exemplo de output
 
-``` bash
-crontab -l
+```
+=================================================================================
+ System Health Report
+ HOST: meu-servidor
+ DATA: 2026-10-11 08:00:00
+=================================================================================
+
+[+] Disk Usage:
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   21G   27G  44% /
+...
+
+[+] Connectivity Check:
+  Pinging 8.8.8.8 (internet)...
+  Internet connectivity: OK
+  Pinging google.com (DNS resolution)...
+  DNS resolution: OK
 ```
 
-## Notes
+## 🗂️ Estrutura do projeto
 
--   `df -h` reports disk usage; `free -h` reports memory usage.
--   `systemctl` and `journalctl` may be limited or unavailable in some
-    WSL configurations.
--   `ping` can fail when ICMP is blocked, even if internet access works.
--   `ss -tulnp` lists listening sockets; process details may require
-    elevated privileges.
+```
+.
+├── health-check.sh   # Script principal
+└── README.md
+```
+
+## 🛠️ Possíveis melhorias
+
+- Alertas por email/Telegram quando um teste falha
+- Limiares configuráveis (ex.: avisar se o disco passar de 90%)
+- Exportação do relatório em JSON/HTML
+- Rotação de relatórios por data
+
+## 📜 Licença
+
+Distribuído sob a licença MIT. Consulta o ficheiro `LICENSE` para mais informações.
+
+## 👤 Autor
+
+**MOISES MIGUEL** — [GitHub](https://github.com/moises08)
